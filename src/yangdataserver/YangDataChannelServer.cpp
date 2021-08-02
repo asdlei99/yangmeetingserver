@@ -95,7 +95,7 @@ void YangDataChannelServer::init(int pport) {
 	lcl_addr.sin_port = htons(m_port);
 	lcl_addr.sin_addr.s_addr = INADDR_ANY;
 
-	/* Create and bind listening socket */
+
 	if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		printf("socket error");
 		exit(1);
@@ -118,8 +118,8 @@ void YangDataChannelServer::init(int pport) {
 		exit(1);
 	}
 
-	if ((m_fd = st_netfd_open_socket(sock)) == NULL)
-		printf("ERROR: st_netfd_open_socket");
+//	if ((m_fd = st_netfd_open_socket(sock)) == NULL)
+	//	printf("ERROR: st_netfd_open_socket");
 
 	st_timecache_set(1);
 

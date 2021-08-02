@@ -153,7 +153,8 @@ void YangUserDataHandle::startLoop() {
 	int64_t connTimeBase=sls_gettime()/1000;
 	notLogin=1;
 	st_utime_t tm=2000*1000;
-
+	st_utime_t heartbeatTm=1000*1000*60;
+	char beatbuffer[3]={0x00,0x00,0x00};
 	while (m_loop) {
 		if(notLogin){
 			if(hasLoginClient){
@@ -165,8 +166,11 @@ void YangUserDataHandle::startLoop() {
 		}
 		pds[0].revents = 0;
 		//printf("\nnotLogin====%d",notLogin);
-		if (st_poll(pds, 1, notLogin?tm:ST_UTIME_NO_TIMEOUT) <= 0) {
-			printf("st_poll error");
+		if (st_poll(pds, 1, notLogin?tm:heartbeatTm) <= 0) {
+			if(notLogin)
+				printf("not login timeout \n");
+			else
+				printf("socket connect timeout.........\n");
 			break;
 		}
 
@@ -174,6 +178,10 @@ void YangUserDataHandle::startLoop() {
 
 			nr = (int) st_read(m_fd, buf, IOBUFSIZE, ST_UTIME_NO_TIMEOUT);
 			if (nr > 0) {
+				if(nr==3&&memcmp(buf,beatbuffer,3)==0) {
+					//printf("heartbeat read....%d\n",nr);
+					continue;
+				}
 				auto input_ptr = std::make_shared<SRT_DATA_MSG>(buf, nr);
 				demux.decode(input_ptr, this);
 
